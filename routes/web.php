@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExcelFuncsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+//Route::get('/export', [ExcelFuncsController::class, 'export']); EXPORT FUNC - ONLY TO STUDY
+Route::get('/importExportView', [ExcelFuncsController::class, 'importExportView']);
+Route::post('/import', [ExcelFuncsController::class, 'import']);
