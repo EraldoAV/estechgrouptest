@@ -2,14 +2,14 @@
 
 ## Details
 
-PHP version: 7.3.23
-Composer version: 1.10.15
-Laravel Framework version: 8.22.1
-Bootstrap CSS and JS version: 5
-Data base softwares: MySql Workbench and SQLyog Community
-GIT - Github - https://github.com/EraldoAV/estechgrouptest
-Excel functions = https://docs.laravel-excel.com/3.1/getting-started/
-Local server = php artisan serve and XAMPP
+- PHP version: 7.3.23
+- Composer version: 1.10.15
+- Laravel Framework version: 8.22.1
+- Bootstrap CSS and JS version: 5
+- Data base softwares: MySql Workbench and SQLyog Community
+- GIT - Github - https://github.com/EraldoAV/estechgrouptest
+- Excel functions = https://docs.laravel-excel.com/3.1/getting-started/
+- Local server = php artisan serve and XAMPP
 
 **
     Don't forget to configure your .env file before starting
