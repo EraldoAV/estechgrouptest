@@ -13,13 +13,27 @@ class SearchDbController extends Controller
         // doing search in DB and returning json format
         
         if ($_POST['account'] == ""){
+            
+            $product_id = DB::table('products')
+                ->select('id')
+                ->whereIn('sku',explode(",", str_replace(' ', '', $_POST['sku'])))
+                ->get()
+                ->all();
+                          
+            foreach ($product_id as $key => $value){
+                $arrIds[$key] = $value->id;
+            }
 
-            $product_id = DB::select('SELECT id FROM products WHERE sku=?', [$_POST['sku']]);
-            $data = DB::select('SELECT value FROM prices WHERE product_id=? order by value asc', [$product_id[0]->id]);
+            $data = DB::table('prices')
+                ->select('prices.value','products.sku')
+                ->leftJoin('products', 'prices.product_id', '=', 'products.id')
+                ->whereIn('product_id',$arrIds)
+                ->orderBy('value', 'asc')
+                ->get();
+
             foreach ($data as $key => $value){
-                
                 $arrReturn[$key] = array(
-                    'sku' => $_POST['sku'],
+                    'sku' => $value->sku,
                     'account' => 0,
                     'price' => $value->value
                 );

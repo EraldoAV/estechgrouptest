@@ -129,6 +129,7 @@
 
 <script type="text/javascript">
 
+    //global vars
     var globaljsonLiveGlobal;
     var globallooping1;
     var globallooping2;
@@ -168,8 +169,7 @@
                 html += '</tr>';
             });
 
-            //saving in localstorage to use the data in exercise 3
-            //localStorage.setItem('jsonLiveGlobal', JSON.stringify(arrPop));
+            //saving in global var to use the data in exercise 3
             globaljsonLiveGlobal = JSON.stringify(arrPop);
             
             $('.jsonReturn').append(html);
@@ -189,6 +189,18 @@
         globallooping2 = "";
         
         var cont = 0;
+        
+        //searcher function to multiple SVU
+        function searcherJson(value,value2,aim) {
+            var noSpaces = value.replace(' ','');
+            var splited = noSpaces.split(',');
+            var arr = [];
+            
+            for(x = 0; x < splited.length; x++){
+                arr.push(aim.filter(obj => obj.sku === splited[x] && obj.account == value2));
+            }
+            return arr;
+        }
                 
         /* 
             first, search in the json live file 
@@ -197,10 +209,10 @@
         if ($('#account-id').val() !== ''){
             var searchJsonLiveData = jsonLiveData.filter(x => x.sku === $('#product-code').val() && x.account === $('#account-id').val());
         }else{
-            var searchJsonLiveData = jsonLiveData.filter(x => x.sku === $('#product-code').val() && x.account === 0);
+            var searchJsonLiveData = searcherJson($('#product-code').val(),0,jsonLiveData);
         }
         
-        globallooping1 = JSON.stringify(searchJsonLiveData);
+        globallooping1 = searchJsonLiveData;
 
         /*
             second, search in DB
@@ -219,25 +231,27 @@
                 globallooping2 = 0;
             }
         
-            var looping1 = JSON.parse(globallooping1);
+            var looping1 = globallooping1;
             var looping2 = JSON.parse(globallooping2);
             var html = '';
 
+            //building the frond-end table -> json file
             $.each(looping1, function( index, element ) {
                 html += '<tr>';
                 html += '<th scope="row">'+index+'</th>';
-                html += '<td>'+element.sku+'</td>';
-                if (element.account !== 0){
-                    html += '<td>'+element.account+'</td>';
+                html += '<td>'+element[index].sku+'</td>';
+                if (element[index].account !== 0){
+                    html += '<td>'+element[index].account+'</td>';
                 }else{
                     html += '<td>'+null+'</td>';
                 }
-                html += '<td>'+formatter.format(element.price)+'</td>';
+                html += '<td>'+formatter.format(element[index].price)+'</td>';
                 html += '<td>live_prices.json</td>';
                 html += '</tr>'; 
                 cont++; 
             });
 
+            //building the frond-end table -> DB
             $.each(looping2, function( index, element) { 
                 html += '<tr>';
                 html += '<th scope="row">'+cont+'</th>';
@@ -257,7 +271,7 @@
             $('.searchTable').removeClass('hidden');
             
         });
-
+        //prevent submit
         e.preventDefault();
     });
 

@@ -1,62 +1,57 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+## ES Tech Group - Eraldo Almeida Vieira - Test Code
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Details
 
-## About Laravel
+PHP version: 7.3.23
+Composer version: 1.10.15
+Laravel Framework version: 8.22.1
+Bootstrap CSS and JS version: 5
+Data base softwares: MySql Workbench and SQLyog Community
+GIT - Github - https://github.com/EraldoAV/estechgrouptest
+Excel functions = https://docs.laravel-excel.com/3.1/getting-started/
+Local server = php artisan serve and XAMPP
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**
+    Don't forget to configure your .env file before starting
+**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**
+    May you need to change the memory consume in you php.ini
+    (function to import excel needs it
+    php.ini -> memory_limit=-1 (128 -> -1)
+**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**
+    There are some comments throughout the code to explain some functions
+**
 
-## Learning Laravel
+## Test Description:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Given the attached database and files
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- import.csv -This file has references to products, accounts and users
+- live_prices.json-this file simulates an external service where you can read dynamic live prices in real time. A price is always related to a product and it could optionally be related to an account.
 
-## Laravel Sponsors
+Please complete what you can of the following tasks:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- 1.Write a script/function to import the prices provided in import.csv -this file has columns with references to each entity -into the prices table
+- 2.Read the JSON price file in real-time and do not load it into the database.  This represents a “live pricing” feed.
+- 3.Develop an output for the function below. This can be done using JSON api, command line or UI based on your preference.
+- - a. get a product price
+- - - I. required parameter: product code (can be one or many)
+- - - II. optional parameter: account id(one only,ifnull it is a public product pricebeing requested)
+- - - III. Pricing logic:
+- - - - 1.Pricing taken from the database should allow the lowest price to winfor a product. A product price in the database with no account id is considered a public price and a match for all queries.A product price with an account ID should match exactly and not be used for pricing without an account ID.
+- - - - 2.Any price in the JSON (live price) should win over any price in the databaseso long as it is a match for product and account (use null if no account is provided).If there is no match in the JSON pricing file use the database lowest matching price rule.
+- - - IV. Output: returns a product sku and product pricevaluein your preferred format.
 
-### Premium Partners
+You can use any technology you want to complete the test, but of course we'd love to see (only if you're comfortable with these):
+- •PHP
+- •Laravel
+- •MySQL Stored procedures
+- •VueJS
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/)**
-- **[OP.GG](https://op.gg)**
+## What we're interested in?
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Performance is a key point of this test. In real world we're dealing with a lot more datathen whatyou'll find in the database/files.
+Speed is important, but we also don't want to drain both CPU and RAM of our server for a single request/process.
