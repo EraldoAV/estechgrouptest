@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExcelFuncsController;
+use App\Http\Controllers\JsonLiveController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +15,7 @@ use App\Http\Controllers\ExcelFuncsController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 //Route::get('/export', [ExcelFuncsController::class, 'export']); EXPORT FUNC - ONLY TO STUDY
-Route::get('/importExportView', [ExcelFuncsController::class, 'importExportView']);
-Route::post('/import', [ExcelFuncsController::class, 'import']);
+Route::get('/', [ExcelFuncsController::class, 'homeView']);
+Route::post('/importFunc', [ExcelFuncsController::class, 'import']);
+Route::post('/loadJson',[JsonLiveController::class,'load']);

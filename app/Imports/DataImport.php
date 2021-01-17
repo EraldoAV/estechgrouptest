@@ -16,20 +16,25 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
     
-class UsersImport implements ToModel, WithHeadingRow
+class DataImport implements ToModel, WithHeadingRow
 {
     /**
      * @param array $row
      *
      * @return User|null
      */
+    
     public function model(array $row)
     {
-        // USING NATIVE DB IS FASTER THAN ELOQUENT (<=15 secs of uploading csv file)
+        /* 
 
-        //checking if there's something inside the row to not do a query request in vain
-        //if true, do the query and find the respective data inside the variable
-        //if false, set null inside the variable
+            USING NATIVE DB IS FASTER THAN ELOQUENT (<=15 secs of uploading csv file)
+
+            checking if there's something inside the row to not do a query request in vain
+            if true, do the query and find the respective data inside the variable
+            if false, set null inside the variable
+
+        */
         if (isset($row['sku'])){
             $product_id = DB::select('SELECT id FROM products WHERE sku=?', [$row['sku']]);
         }else{
@@ -55,13 +60,17 @@ class UsersImport implements ToModel, WithHeadingRow
            'value'          => $row['value'], 
         ]);
 
-        //ELOQUENT, ONLY TO PERFORMANCE TEST (>=30 secs of uploading csv file),
-        /*return new Prices([
-            'product_id'     => (isset($row['sku']) ? Products::where('sku', $row['sku'])->get()->first()->id : null),
-            'account_id'     => (isset($row['account_ref']) ? Accounts::where('external_reference', $row['account_ref'])->get()->first()->id : null), 
-            'user_id'        => (isset($row['user_ref']) ? Users::where('external_reference', $row['user_ref'])->get()->first()->id : null), 
-            'quantity'       => $row['quantity'], 
-            'value'          => $row['value'], 
-         ]);*/
+        /*
+            ELOQUENT, ONLY TO PERFORMANCE TEST (>=30 secs of uploading csv file),
+
+            return new Prices([
+                'product_id'     => (isset($row['sku']) ? Products::where('sku', $row['sku'])->get()->first()->id : null),
+                'account_id'     => (isset($row['account_ref']) ? Accounts::where('external_reference', $row['account_ref'])->get()->first()->id : null), 
+                'user_id'        => (isset($row['user_ref']) ? Users::where('external_reference', $row['user_ref'])->get()->first()->id : null), 
+                'quantity'       => $row['quantity'], 
+                'value'          => $row['value'], 
+            ]);
+
+         */
     }
 }

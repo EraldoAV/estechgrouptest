@@ -3,27 +3,31 @@
 namespace App\Http\Controllers;
   
 use Illuminate\Http\Request;
-use App\Exports\UsersExport;
-use App\Imports\UsersImport;
+use App\Exports\DataExport;
+use App\Imports\DataImport;
 use Maatwebsite\Excel\Facades\Excel;
+
   
 class ExcelFuncsController extends Controller
 {
-    
-    public function importExportView()
+    public function homeView()
     {
-       return view('import');
+        return view('home');
     }
    
-    public function export() 
-    {
-        return Excel::download(new UsersExport, 'users.xlsx');
-    }
+    /*
+        EXPORT FUNC - ONLY TO STUDY
+
+        public function export() 
+        {
+            return Excel::download(new UsersExport, 'users.xlsx');
+        }
+        
+    */
    
     public function import() 
     {
-        Excel::import(new UsersImport,request()->file('file'));
-           
-        return redirect()->back();
+        Excel::import(new DataImport,request()->file('file'));
+        return redirect('/')->with('success', 'All good!');
     }
 }
