@@ -10,7 +10,6 @@ class JsonLiveController extends Controller
     {
         // Reading File JSON
         $jsonString = file_get_contents(base_path('import_archives/live_prices.json'));
-        //$data = json_decode($jsonString, true);
         return json_decode($jsonString, true);
     }
    

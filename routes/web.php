@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExcelFuncsController;
 use App\Http\Controllers\JsonLiveController;
+use App\Http\Controllers\SearchDbController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,3 +20,4 @@ use App\Http\Controllers\JsonLiveController;
 Route::get('/', [ExcelFuncsController::class, 'homeView']);
 Route::post('/importFunc', [ExcelFuncsController::class, 'import']);
 Route::post('/loadJson',[JsonLiveController::class,'load']);
+Route::post('/searchDB',[SearchDbController::class,'search']);

@@ -19,6 +19,9 @@
 
 		<!-- CSS -->
         <style type="text/css">
+            .hidden{
+                display: none;
+            }
             .span-title{
                 margin-bottom: 15px;
                 display: block;
@@ -32,6 +35,9 @@
                 overflow: auto;
                 height: 259px;
                 padding-bottom:20px;
+            }
+            .search-buttom{
+                margin-top:20px;
             }
         </style>
 
@@ -61,7 +67,7 @@
 <div class="container">
     <div class="card bg-light mt-3">
         <div class="card-body card-tabble-body">
-        <span class="span-title">2. Real-time read JSON (import_archives/live_prices.json)</span>
+            <span class="span-title">2. Real-time read JSON (import_archives/live_prices.json)</span>
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -78,38 +84,181 @@
         </div>
     </div>
 </div>
-
+<div class="container">
+    <div class="card bg-light mt-3">
+        <div class="card-body card-tabble-body" style="height: auto;">
+            <span class="span-title">3. Develop an output - get a product price</span>
+            <form id="search">
+                @csrf
+                <div class="row g-2">
+                    <div class="col-md">
+                        <div class="form-floating">
+                            <input type="product-code" class="form-control" id="product-code" placeholder="Product Code" required>
+                            <label for="floatingInput">Product Code</label>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="form-floating">
+                            <input type="account-id" class="form-control" id="account-id" placeholder="Account ID">
+                            <label for="floatingInput">Account ID</label>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-success search-buttom" type="submit">Search</button>
+            </form>
+            <div class='searchTable hidden'>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Sku</th>
+                    <th scope="col">Account</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Origin</th>
+                    </tr>
+                </thead>
+                <tbody class='searchTableJson'>
+                    
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 
 <script type="text/javascript">
 
+    var globaljsonLiveGlobal;
+    var globallooping1;
+    var globallooping2;
+
+    /*
+        Euro currency formatter.
+    */
     const formatter = new Intl.NumberFormat('it-IT', {
         style: 'currency',
         currency: 'EUR',
         minimumFractionDigits: 2
     })
-
+    /*
+        Ajax to read JSON file and bring the data.
+    */
     $( document ).ready(function() {
+        var arrPop = [];
         $.ajax({
-				method: "POST",
-				url: "/loadJson",
-				data: { "_token": "{{ csrf_token() }}"}
+            method: "POST",
+            url: "/loadJson",
+            data: { "_token": "{{ csrf_token() }}"}
         }).done(function( resultReturn ) {
             var html = '';
             $( resultReturn ).each(function( index, element ) {
+                
                 html += '<tr>';
                 html += '<th scope="row">'+index+'</th>';
                 html += '<td>'+element.sku+'</td>';
                 if (typeof element.account !== 'undefined'){
+                    arrPop[index] = {'sku' : element.sku, 'account' : element.account, 'price' : element.price };
                     html += '<td>'+element.account+'</td>';
                 }else{
-                    html += '<td>N/A</td>';
+                    arrPop[index] = {'sku' : element.sku, 'account' : 0, 'price' : element.price };
+                    html += '<td>'+null+'</td>';
                 }
                 html += '<td>'+formatter.format(element.price)+'</td>';
                 html += '</tr>';
             });
+
+            //saving in localstorage to use the data in exercise 3
+            //localStorage.setItem('jsonLiveGlobal', JSON.stringify(arrPop));
+            globaljsonLiveGlobal = JSON.stringify(arrPop);
+            
             $('.jsonReturn').append(html);
         });
+    });
+    /*
+        DB search
+
+    */
+    $("#search").submit(function(e){
+
+        $('.searchTableJson').find('tr').remove();
+        var pdc_code = $('#product-code').val();
+        var acc_id = $('#account-id').val();
+        var jsonLiveData = JSON.parse(globaljsonLiveGlobal);
+        globallooping1 = "";
+        globallooping2 = "";
+        
+        var cont = 0;
+                
+        /* 
+            first, search in the json live file 
+        */
+        
+        if ($('#account-id').val() !== ''){
+            var searchJsonLiveData = jsonLiveData.filter(x => x.sku === $('#product-code').val() && x.account === $('#account-id').val());
+        }else{
+            var searchJsonLiveData = jsonLiveData.filter(x => x.sku === $('#product-code').val() && x.account === 0);
+        }
+        
+        globallooping1 = JSON.stringify(searchJsonLiveData);
+
+        /*
+            second, search in DB
+        */
+        ;
+
+        $.ajax({
+            method: "POST",
+            url: "/searchDB",
+            data: { "sku": $('#product-code').val(), "account": $('#account-id').val(), "_token": "{{ csrf_token() }}"}
+        }).done(function( resultReturn ) {
+            //populating the json live array data with DB data
+            if(resultReturn != 0){
+                globallooping2 = resultReturn;
+            }else{
+                globallooping2 = 0;
+            }
+        
+            var looping1 = JSON.parse(globallooping1);
+            var looping2 = JSON.parse(globallooping2);
+            var html = '';
+
+            $.each(looping1, function( index, element ) {
+                html += '<tr>';
+                html += '<th scope="row">'+index+'</th>';
+                html += '<td>'+element.sku+'</td>';
+                if (element.account !== 0){
+                    html += '<td>'+element.account+'</td>';
+                }else{
+                    html += '<td>'+null+'</td>';
+                }
+                html += '<td>'+formatter.format(element.price)+'</td>';
+                html += '<td>live_prices.json</td>';
+                html += '</tr>'; 
+                cont++; 
+            });
+
+            $.each(looping2, function( index, element) { 
+                html += '<tr>';
+                html += '<th scope="row">'+cont+'</th>';
+                html += '<td>'+element.sku+'</td>';
+                if (element.account !== 0){
+                    html += '<td>'+element.account+'</td>';
+                }else{
+                    html += '<td>'+null+'</td>';
+                }
+                html += '<td>'+formatter.format(element.price)+'</td>';
+                html += '<td>Table DB</td>';
+                html += '</tr>';
+                cont++;
+            });
+
+            $('.searchTableJson').append(html);
+            $('.searchTable').removeClass('hidden');
+            
+        });
+
+        e.preventDefault();
     });
 
 </script>
