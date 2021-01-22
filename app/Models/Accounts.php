@@ -14,6 +14,9 @@ class Accounts extends Model
      *
      * @var array
      */
+    
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'name',
         'company',

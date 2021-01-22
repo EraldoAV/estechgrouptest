@@ -4,69 +4,97 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB; 
 use Illuminate\Http\Request;
-use App\Models\Prices;
+use App\Models\DBmaker;
   
 class SearchDbController extends Controller
 {
+    public $arrReturn;
     public function search()
     {
         // doing search in DB and returning json format
         
         if ($_POST['account'] == ""){
-            
-            $product_id = DB::table('products')
-                ->select('id')
-                ->whereIn('sku',explode(",", str_replace(' ', '', $_POST['sku'])))
-                ->get()
-                ->all();
-                          
+
+            $dbMaker = new DBmaker();
+            $dbMaker->setFunction('select');
+            $dbMaker->setColumns(array ('id'));
+            $dbMaker->setTable('products');
+            $dbMaker->setStatement('whereIn');
+            $dbMaker->setStatementColumns(array('sku',explode(",", str_replace(' ', '', $_POST['sku']))));
+            $product_id = $dbMaker->mount();
+             
             foreach ($product_id as $key => $value){
                 $arrIds[$key] = $value->id;
             }
 
-            $data = DB::table('prices')
-                ->select('prices.value','products.sku')
-                ->leftJoin('products', 'prices.product_id', '=', 'products.id')
-                ->whereIn('product_id',$arrIds)
-                ->orderBy('value', 'asc')
-                ->get();
+            $leftJoinArr = array(
+                'tableAim' => 'products',
+                'column1' => 'prices.product_id',
+                'symbol' => '=',
+                'column2' => 'products.id'
+            );
+
+            $dbMaker->setFunction('select');
+            $dbMaker->setColumns(array ('prices.value','products.sku'));
+            $dbMaker->setTable('prices');
+            $dbMaker->setLeftJoin($leftJoinArr);
+            $dbMaker->setStatement('whereIn');
+            $dbMaker->setStatementColumns(array('product_id',$arrIds));
+            $dbMaker->setOrder(array('value','asc'));
+            $data = $dbMaker->mount();
 
             foreach ($data as $key => $value){
-                $arrReturn[$key] = array(
+                $this->arrReturn[$key] = array(
                     'sku' => $value->sku,
                     'account' => 0,
                     'price' => $value->value
                 );
             }
-            
-            return (json_encode($arrReturn));
+
+            return (json_encode($this->arrReturn));
 
         }else{
             
-            $product_id = DB::select('SELECT id FROM products WHERE sku=?', [$_POST['sku']]);
-            $account_id = DB::select('SELECT id FROM accounts WHERE external_reference=?', [$_POST['account']]);
-            $data = DB::table('prices')
-                ->select('id', 'product_id', 'account_id', 'value')
-                ->where('product_id', '=', $product_id[0]->id)
-                ->where('account_id', '=', $account_id[0]->id)
-                ->orderBy('value', 'asc')
-                ->get();
+            $dbMaker = new DBmaker();
+            $dbMaker->setFunction('select');
+            $dbMaker->setColumns(array ('id'));
+            $dbMaker->setTable('products');
+            $dbMaker->setStatement('where');
+            $dbMaker->setStatementColumns('sku');
+            $dbMaker->setData($_POST['sku']);
+            $product_id = $dbMaker->mount();
 
+            $dbMaker->setFunction('select');
+            $dbMaker->setColumns(array ('id'));
+            $dbMaker->setTable('accounts');
+            $dbMaker->setStatement('where');
+            $dbMaker->setStatementColumns('external_reference');
+            $dbMaker->setData($_POST['account']);
+            $account_id = $dbMaker->mount();
 
-            if(isset($data->items)){
+            $dbMaker->setFunction('select');
+            $dbMaker->setColumns(array ('id','product_id', 'account_id', 'value'));
+            $dbMaker->setTable('prices');
+            $dbMaker->setStatement('whereAnd');
+            $dbMaker->setStatementColumns(array('product_id','account_id'));
+            $dbMaker->setData(array($product_id[0]->id,$account_id[0]->id));
+
+            $data = $dbMaker->mount();
+
+            if(!empty($data)){
                 foreach ($data as $key => $value){
 
-                    $arrReturn[$key] = array(
+                    $this->arrReturn[$key] = array(
                         'sku' => $_POST['sku'],
                         'account' => $_POST['account'],
                         'price' => $value->value
                     );
                 }
+                
             }else{
-                $arrReturn = 0;
+                $this->arrReturn = 0;
             }
-              
-            return (json_encode($arrReturn));
+            return (json_encode($this->arrReturn));
         }
     }
    

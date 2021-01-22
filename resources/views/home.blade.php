@@ -18,6 +18,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 		<!-- CSS -->
+
         <style type="text/css">
             .hidden{
                 display: none;
@@ -43,7 +44,7 @@
 
 	</head>
 <body>
-   
+
 <div class="container">
     <div class="card bg-light mt-3">
         <div class="card-body">
@@ -56,9 +57,14 @@
                 <!-- <a class="btn btn-warning" href="{{ url('/export') }}">Export User Data</a> -->
             </form>
             
-            @if(session('success'))
+            @if(session('success') == 1)
             <div class="alert alert-success success-alert-csv" role="alert">
                 File imported successfully
+            </div>
+            @endif
+            @if(session('fail') == 1)
+            <div class="alert alert-danger success-alert-csv" role="alert">
+                File not imported successfully - using import.csv?
             </div>
             @endif
         </div>
@@ -199,6 +205,7 @@
             for(x = 0; x < splited.length; x++){
                 arr.push(aim.filter(obj => obj.sku === splited[x] && obj.account == value2));
             }
+           
             return arr;
         }
                 
@@ -207,7 +214,7 @@
         */
         
         if ($('#account-id').val() !== ''){
-            var searchJsonLiveData = jsonLiveData.filter(x => x.sku === $('#product-code').val() && x.account === $('#account-id').val());
+            var searchJsonLiveData = [jsonLiveData.filter(x => x.sku === $('#product-code').val() && x.account === $('#account-id').val())];
         }else{
             var searchJsonLiveData = searcherJson($('#product-code').val(),0,jsonLiveData);
         }
@@ -234,22 +241,45 @@
             var looping1 = globallooping1;
             var looping2 = JSON.parse(globallooping2);
             var html = '';
-
+            
             //building the frond-end table -> json file
-            $.each(looping1, function( index, element ) {
-                html += '<tr>';
-                html += '<th scope="row">'+index+'</th>';
-                html += '<td>'+element[index].sku+'</td>';
-                if (element[index].account !== 0){
-                    html += '<td>'+element[index].account+'</td>';
-                }else{
-                    html += '<td>'+null+'</td>';
+            if ($('#account-id').val() === ''){
+                $.each(looping1, function( index, element ) {
+                    $.each(element, function( index2, element2 ) {
+                        
+                        html += '<tr>';
+                        html += '<th scope="row">'+index+'</th>';
+                        html += '<td>'+element[index2].sku+'</td>';
+                        if (element[index2].account !== 0){
+                            html += '<td>'+element[index2].account+'</td>';
+                        }else{
+                            html += '<td>'+null+'</td>';
+                        }
+                        html += '<td>'+formatter.format(element[index2].price)+'</td>';
+                        html += '<td>live_prices.json</td>';
+                        html += '</tr>'; 
+                        cont++; 
+                    });
+                });
+            }else{
+                if(looping1[0].length != 0){
+                    $.each(looping1, function( index, element ) {
+                        
+                        html += '<tr>';
+                        html += '<th scope="row">'+index+'</th>';
+                        html += '<td>'+element[index].sku+'</td>';
+                        if (element[index].account !== 0){
+                            html += '<td>'+element[index].account+'</td>';
+                        }else{
+                            html += '<td>'+null+'</td>';
+                        }
+                        html += '<td>'+formatter.format(element[index].price)+'</td>';
+                        html += '<td>live_prices.json</td>';
+                        html += '</tr>'; 
+                        cont++; 
+                    });
                 }
-                html += '<td>'+formatter.format(element[index].price)+'</td>';
-                html += '<td>live_prices.json</td>';
-                html += '</tr>'; 
-                cont++; 
-            });
+            }
 
             //building the frond-end table -> DB
             $.each(looping2, function( index, element) { 

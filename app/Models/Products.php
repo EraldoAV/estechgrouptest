@@ -14,6 +14,9 @@ class Products extends Model
      *
      * @var array
      */
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'sku',
         'name',

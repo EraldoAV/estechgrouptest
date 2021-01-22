@@ -14,22 +14,16 @@ class Prices extends Model
      *
      * @var array
      */
+
+    protected $table = "prices";
+
+    protected $primaryKey = 'id';
+    
     protected $fillable = [
         'product_id',
         'account_id',
         'user_id',
         'quantity',
         'value',
-        'updated_at',
-        'deleted_at',
-    ];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
     ];
 }

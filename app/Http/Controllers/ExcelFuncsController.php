@@ -27,7 +27,15 @@ class ExcelFuncsController extends Controller
    
     public function import() 
     {
-        Excel::import(new DataImport,request()->file('file'));
-        return redirect('/')->with('success', 'All good!');
+        $import = new DataImport();
+        $return = Excel::import($import,request()->file('file'));
+        $status = $import->getReturn();
+        
+        if(isset($status)){
+            return redirect('/')->with('success', '1');
+        }else{
+            return redirect('/')->with('fail', '1');
+        }
+        
     }
 }
